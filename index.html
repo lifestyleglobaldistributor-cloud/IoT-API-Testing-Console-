@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>IoT API Testing Console</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #4a9eff;
+            --accent-green: #4ade80;
+            --accent-red: #ef4444;
+            --accent-yellow: #fbbf24;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-header {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a8eef;
+        }
+
+        .btn-primary:disabled {
+            background: var(--bg-tertiary);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .method-selector {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .method-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .method-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .header-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .header-row input {
+            padding: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+            min-width: 40px;
+            min-height: 40px;
+        }
+
+        .response-panel {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .response-panel pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .status-error {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .status-info {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .ws-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .ws-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-red);
+        }
+
+        .ws-indicator.connected {
+            background: var(--accent-green);
+        }
+
+        .ws-messages {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .ws-message {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--accent-blue);
+            background: var(--bg-secondary);
+            word-wrap: break-word;
+        }
+
+        .ws-message.sent {
+            border-left-color: var(--accent-green);
+        }
+
+        .ws-message.received {
+            border-left-color: var(--accent-blue);
+        }
+
+        .ws-message-time {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .saved-requests {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .saved-request-item {
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .saved-request-item:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .saved-request-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .saved-request-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        .delete-saved {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .saved-request-item:hover .delete-saved {
+            opacity: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .subtitle {
+                font-size: 12px;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .panel-header {
+                font-size: 14px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .method-selector {
+                flex-wrap: wrap;
+            }
+
+            .method-btn {
+                min-width: 60px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                white-space: nowrap;
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            input[type="text"],
+            input[type="password"],
+            select,
+            textarea {
+                font-size: 16px;
+            }
+
+            .response-panel {
+                font-size: 11px;
+                max-height: 300px;
+            }
+
+            .ws-messages {
+                max-height: 200px;
+                font-size: 11px;
+            }
+
+            .saved-request-item {
+                padding: 12px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            header {
+                padding: 15px;
+            }
+
+            .panel {
+                padding: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .method-selector {
+                grid-template-columns: repeat(3, 1fr);
+                display: grid;
+            }
+
+            .method-btn {
+                font-size: 11px;
+                padding: 10px 5px;
+            }
+
+            .btn-small {
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .ws-status {
+                font-size: 13px;
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .btn,
+            .method-btn,
+            .tab,
+            .saved-request-item {
+                min-height: 48px;
+            }
+
+            input,
+            select,
+            textarea {
+                min-height: 48px;
+            }
+
+            .header-row input {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ IoT API Testing Console</h1>
+            <div class="subtitle">Professional REST & WebSocket Testing Tool</div>
+        </header>
+
+        <div class="main-grid">
+            <!-- REST API Tester -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>REST API Tester</span>
+                    <span class="status-badge status-info" id="restStatus">Ready</span>
+                </div>
+
+                <div class="method-selector">
+                    <button class="method-btn active" data-method="GET">GET</button>
+                    <button class="method-btn" data-method="POST">POST</button>
+                    <button class="method-btn" data-method="PUT">PUT</button>
+                    <button class="method-btn" data-method="DELETE">DELETE</button>
+                    <button class="method-btn" data-method="PATCH">PATCH</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Endpoint URL</label>
+                    <input type="text" id="restUrl" placeholder="https://api.example.com/devices" value="https://jsonplaceholder.typicode.com/posts/1">
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="headers">Headers</button>
+                    <button class="tab" data-tab="body">Body</button>
+                    <button class="tab" data-tab="auth">Auth</button>
+                </div>
+
+                <div id="headers" class="tab-content active">
+                    <div id="headersContainer">
+                        <div class="header-row">
+                            <input type="text" placeholder="Header Key" class="header-key">
+                            <input type="text" placeholder="Header Value" class="header-value">
+                            <button class="btn btn-danger btn-small" onclick="removeHeader(this)">✕</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="addHeader()">+ Add Header</button>
+                </div>
+
+                <div id="body" class="tab-content">
+                    <div class="form-group">
+                        <label>Request Body (JSON)</label>
+                        <textarea id="requestBody" placeholder='{"temperature": 25.5, "humidity": 60}'></textarea>
+                    </div>
+                </div>
+
+                <div id="auth" class="tab-content">
+                    <div class="form-group">
+                        <label>Auth Type</label>
+                        <select id="authType">
+                            <option value="none">None</option>
+                            <option value="bearer">Bearer Token</option>
+                            <option value="basic">Basic Auth</option>
+                            <option value="apikey">API Key</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="authFields"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="sendRequest()">Send Request</button>
+                    <button class="btn btn-secondary" onclick="saveRequest()">💾 Save</button>
+                    <button class="btn btn-secondary" onclick="clearRequest()">Clear</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="responseTime">0ms</div>
+                        <div class="stat-label">Response Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="responseSize">0 KB</div>
+                        <div class="stat-label">Size</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statusCode">---</div>
+                        <div class="stat-label">Status</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Inspector -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Response Inspector</span>
+                    <button class="btn btn-secondary btn-small" onclick="exportResponse()">Export</button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="response-body">Body</button>
+                    <button class="tab" data-tab="response-headers">Headers</button>
+                    <button class="tab" data-tab="response-raw">Raw</button>
+                </div>
+
+                <div id="response-body" class="tab-content active">
+                    <div class="response-panel" id="responseBody">
+                        <div style="color: var(--text-secondary);">Response will appear here...</div>
+                    </div>
+                </div>
+
+                <div id="response-headers" class="tab-content">
+                    <div class="response-panel" id="responseHeaders">
+                        <div style="color: var(--text-secondary);">Response headers will appear here...</div>
+                    </div>
+                </div>
+
+                <div id="response-raw" class="tab-content">
+                    <div class="response-panel" id="responseRaw">
+                        <div style="color: var(--text-secondary);">Raw response will appear here...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- WebSocket Tester -->
+            <div class="panel">
+                <div class="panel-header">WebSocket Tester</div>
+
+                <div class="ws-status">
+                    <div class="ws-indicator" id="wsIndicator"></div>
+                    <span id="wsStatusText">Disconnected</span>
+                </div>
+
+                <div class="form-group">
+                    <label>WebSocket URL</label>
+                    <input type="text" id="wsUrl" placeholder="wss://echo.websocket.org" value="wss://echo.websocket.org">
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="connectWebSocket()">Connect</button>
+                    <button class="btn btn-danger" onclick="disconnectWebSocket()">Disconnect</button>
+                    <button class="btn btn-secondary" onclick="clearWSMessages()">Clear</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Message to Send</label>
+                    <textarea id="wsMessage" placeholder='{"command": "status", "device_id": "sensor_01"}'></textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="sendWSMessage()" id="wsSendBtn" disabled>Send Message</button>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Messages</label>
+                    <div class="ws-messages" id="wsMessages">
+                        <div style="color: var(--text-secondary);">Connect to start receiving messages...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Requests -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Saved Requests</span>
+                    <button class="btn btn-secondary btn-small" onclick="runBatch()">▶ Run Batch</button>
+                </div>
+
+                <div class="saved-requests" id="savedRequests">
+                    <div style="color: var(--text-secondary); text-align: center; padding: 20px;">
+                        No saved requests yet. Save a request to see it here.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentMethod = 'GET';
+        let wsConnection = null;
+        let savedRequestsList = [];
+        let lastResponse = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedRequests();
+            setupEventListeners();
+            updateAuthFields();
+        });
+
+        function setupEventListeners() {
+            // Method selector buttons
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMethod = this.dataset.method;
+                });
+            });
+
+            // Tab navigation
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const parent = this.closest('.panel');
+                    parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    const tabId = this.dataset.tab;
+                    const content = parent.querySelector(`#${tabId}`);
+                    if (content) content.classList.add('active');
+                });
+            });
+
+            // Auth type change
+            document.getElementById('authType').addEventListener('change', updateAuthFields);
+        }
+
+        // Header management
+        function addHeader() {
+            const container = document.getElementById('headersContainer');
+            const row = document.createElement('div');
+            row.className = 'header-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Header Key" class="header-key">
+                <input type="text" placeholder="Header Value" class="header-value">
+                <button class="btn btn-danger btn-small" onclick="removeHeader(this)">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeHeader(btn) {
+            const container = document.getElementById('headersContainer');
+            if (container.children.length > 1) {
+                btn.closest('.header-row').remove();
+            }
+        }
+
+        // Authentication fields
+        function updateAuthFields() {
+            const authType = document.getElementById('authType').value;
+            const container = document.getElementById('authFields');
+            
+            switch(authType) {
+                case 'bearer':
+                    container.innerHTML = `
+                        <label>Bearer Token</label>
+                        <input type="text" id="bearerToken" placeholder="your-token-here">
+                    `;
+                    break;
+                case 'basic':
+                    container.innerHTML = `
+                        <label>Username</label>
+                        <input type="text" id="basicUsername" placeholder="username">
+                        <label style="margin-top: 10px;">Password</label>
+                        <input type="password" id="basicPassword" placeholder="password">
+                    `;
+                    break;
+                case 'apikey':
+                    container.innerHTML = `
+                        <label>API Key Header Name</label>
+                        <input type="text" id="apiKeyName" placeholder="X-API-Key" value="X-API-Key">
+                        <label style="margin-top: 10px;">API Key Value</label>
+                        <input type="text" id="apiKeyValue" placeholder="your-api-key">
+                    `;
+                    break;
+                default:
+                    container.innerHTML = '';
+            }
+        }
+
+        // Build headers object
+        function buildHeaders() {
+            const headers = {};
+            
+            // Custom headers
+            document.querySelectorAll('.header-row').forEach(row => {
+                const key = row.querySelector('.header-key').value.trim();
+                const value = row.querySelector('.header-value').value.trim();
+                if (key && value) {
+                    headers[key] = value;
+                }
+            });
+
+            // Authentication headers
+            const authType = document.getElementById('authType').value;
+            switch(authType) {
+                case 'bearer':
+                    const token = document.getElementById('bearerToken')?.value;
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                    break;
+                case 'basic':
+                    const username = document.getElementById('basicUsername')?.value;
+                    const password = document.getElementById('basicPassword')?.value;
+                    if (username && password) {
+                        headers['Authorization'] = 'Basic ' + btoa(`${username}:${password}`);
+                    }
+                    break;
+                case 'apikey':
+                    const keyName = document.getElementById('apiKeyName')?.value;
+                    const keyValue = document.getElementById('apiKeyValue')?.value;
+                    if (keyName && keyValue) headers[keyName] = keyValue;
+                    break;
+            }
+
+            return headers;
+        }
+
+        // Send REST request
+        async function sendRequest() {
+            const url = document.getElementById('restUrl').value.trim();
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+
+            const statusBadge = document.getElementById('restStatus');
+            statusBadge.textContent = 'Sending...';
+            statusBadge.className = 'status-badge status-info';
+
+            const startTime = performance.now();
+
+            try {
+                const options = {
+                    method: currentMethod,
+                    headers: buildHeaders()
+                };
+
+                // Add body for POST, PUT, PATCH
+                if (['POST', 'PUT', 'PATCH'].includes(currentMethod)) {
+                    const body = document.getElementById('requestBody').value.trim();
+                    if (body) {
+                        options.body = body;
+                        options.headers['Content-Type'] = 'application/json';
+                    }
+                }
+
+                const response = await fetch(url, options);
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = responseText;
+                }
+
+                lastResponse = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    body: responseData,
+                    time: responseTime,
+                    size: new Blob([responseText]).size
+                };
+
+                // Update stats
+                document.getElementById('responseTime').textContent = `${responseTime}ms`;
+                document.getElementById('statusCode').textContent = response.status;
+                
+                const sizeKB = (new Blob([responseText]).size / 1024).toFixed(2);
+                document.getElementById('responseSize').textContent = `${sizeKB} KB`;
+
+                // Update response body
+                document.getElementById('responseBody').innerHTML = 
+                    `<pre>${JSON.stringify(responseData, null, 2)}</pre>`;
+
+                // Update response headers
+                let headersHTML = '';
+                response.headers.forEach((value, key) => {
+                    headersHTML += `<div><strong>${key}:</strong> ${value}</div>`;
+                });
+                document.getElementById('responseHeaders').innerHTML = headersHTML || 'No headers';
+
+                // Update raw response
+                document.getElementById('responseRaw').innerHTML = 
+                    `<pre>HTTP ${response.status} ${response.statusText}\n\n${responseText}</pre>`;
+
+                // Update status badge
+                statusBadge.textContent = response.ok ? 'Success' : 'Error';
+                statusBadge.className = response.ok ? 'status-badge status-success' : 'status-badge status-error';
+
+            } catch (error) {
+                const endTime = performance.now();
+                document.getElementById('responseTime').textContent = `${Math.round(endTime - startTime)}ms`;
+                document.getElementById('responseBody').innerHTML = 
+                    `<div style="color: var(--accent-red);">Error: ${error.message}</div>`;
+                document.getElementById('statusCode').textContent = 'ERR';
+                statusBadge.textContent = 'Failed';
+                statusBadge.className = 'status-badge status-error';
+            }
+        }
+
+        // Save current request
+        function saveRequest() {
+            const name = prompt('Enter a name for this request:');
+            if (!name) return;
+
+            const headers = {};
+            document.querySelectorAll('.header-row').forEach(row => {
+                const key = row.querySelector('.header-key').value.trim();
+                const value = row.querySelector('.header-value').value.trim();
+                if (key && value) headers[key] = value;
+            });
+
+            const request = {
+                id: Date.now(),
+                name: name,
+                method: currentMethod,
+                url: document.getElementById('restUrl').value,
+                headers: headers,
+                body: document.getElementById('requestBody').value,
+                authType: document.getElementById('authType').value,
+                timestamp: new Date().toISOString()
+            };
+
+            savedRequestsList.push(request);
+            saveToBrowser();
+            loadSavedRequests();
+            alert('Request saved successfully!');
+        }
+
+        // Load saved request
+        function loadRequest(id) {
+            const request = savedRequestsList.find(r => r.id === id);
+            if (!request) return;
+
+            // Set method
+            currentMethod = request.method;
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.method === request.method);
+            });
+
+            // Set URL and body
+            document.getElementById('restUrl').value = request.url;
+            document.getElementById('requestBody').value = request.body || '';
+            document.getElementById('authType').value = request.authType || 'none';
+            updateAuthFields();
+
+            // Set headers
+            const container = document.getElementById('headersContainer');
+            container.innerHTML = '';
+            
+            const headerEntries = Object.entries(request.headers || {});
+            if (headerEntries.length === 0) {
+                addHeader();
+            } else {
+                headerEntries.forEach(([key, value]) => {
+                    const row = document.createElement('div');
+                    row.className = 'header-row';
+                    row.innerHTML = `
+                        <input type="text" placeholder="Header Key" class="header-key" value="${key}">
+                        <input type="text" placeholder="Header Value" class="header-value" value="${value}">
+                        <button class="btn btn-danger btn-small" onclick="removeHeader(this)">✕</button>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+        }
+
+        // Delete saved request
+        function deleteSavedRequest(id, event) {
+            event.stopPropagation();
+            if (confirm('Delete this saved request?')) {
+                savedRequestsList = savedRequestsList.filter(r => r.id !== id);
+                saveToBrowser();
+                loadSavedRequests();
+            }
+        }
+
+        // Load saved requests from memory
+        function loadSavedRequests() {
+            const container = document.getElementById('savedRequests');
+            if (savedRequestsList.length === 0) {
+                container.innerHTML = `
+                    <div style="color: var(--text-secondary); text-align: center; padding: 20px;">
+                        No saved requests yet. Save a request to see it here.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = savedRequestsList.map(req => `
+                <div class="saved-request-item" onclick="loadRequest(${req.id})">
+                    <button class="delete-saved" onclick="deleteSavedRequest(${req.id}, event)">✕</button>
+                    <div class="saved-request-name">${escapeHtml(req.name)}</div>
+                    <div class="saved-request-details">
+                        <span style="color: var(--accent-blue);">${req.method}</span> ${escapeHtml(req.url)}
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">
+                        ${new Date(req.timestamp).toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Save to browser (in-memory simulation of localStorage)
+        function saveToBrowser() {
+            // In a real implementation, this would use localStorage
+            // For this demo, we keep everything in memory
+            console.log('Saved requests:', savedRequestsList.length);
+        }
+
+        // Clear current request
+        function clearRequest() {
+            document.getElementById('restUrl').value = '';
+            document.getElementById('requestBody').value = '';
+            document.getElementById('authType').value = 'none';
+            updateAuthFields();
+            
+            const container = document.getElementById('headersContainer');
+            container.innerHTML = '';
+            addHeader();
+            
+            document.getElementById('responseBody').innerHTML = 
+                '<div style="color: var(--text-secondary);">Response will appear here...</div>';
+            document.getElementById('responseHeaders').innerHTML = 
+                '<div style="color: var(--text-secondary);">Response headers will appear here...</div>';
+            document.getElementById('responseRaw').innerHTML = 
+                '<div style="color: var(--text-secondary);">Raw response will appear here...</div>';
+                
+            document.getElementById('responseTime').textContent = '0ms';
+            document.getElementById('responseSize').textContent = '0 KB';
+            document.getElementById('statusCode').textContent = '---';
+            
+            const statusBadge = document.getElementById('restStatus');
+            statusBadge.textContent = 'Ready';
+            statusBadge.className = 'status-badge status-info';
+        }
+
+        // Export response
+        function exportResponse() {
+            if (!lastResponse) {
+                alert('No response to export');
+                return;
+            }
+
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                request: {
+                    method: currentMethod,
+                    url: document.getElementById('restUrl').value,
+                    headers: buildHeaders()
+                },
+                response: lastResponse
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `api-response-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Run batch requests
+        async function runBatch() {
+            if (savedRequestsList.length === 0) {
+                alert('No saved requests to run');
+                return;
+            }
+
+            if (!confirm(`Run all ${savedRequestsList.length} saved requests?`)) {
+                return;
+            }
+
+            const results = [];
+            for (const req of savedRequestsList) {
+                loadRequest(req.id);
+                await sendRequest();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between requests
+                
+                if (lastResponse) {
+                    results.push({
+                        name: req.name,
+                        status: lastResponse.status,
+                        time: lastResponse.time
+                    });
+                }
+            }
+
+            alert('Batch complete!\n\n' + results.map(r => 
+                `${r.name}: ${r.status} (${r.time}ms)`
+            ).join('\n'));
+        }
+
+        // WebSocket functions
+        function connectWebSocket() {
+            const url = document.getElementById('wsUrl').value.trim();
+            if (!url) {
+                alert('Please enter a WebSocket URL');
+                return;
+            }
+
+            if (wsConnection) {
+                alert('Already connected. Disconnect first.');
+                return;
+            }
+
+            try {
+                wsConnection = new WebSocket(url);
+
+                wsConnection.onopen = function() {
+                    updateWSStatus(true, 'Connected');
+                    addWSMessage('Connected to ' + url, 'info');
+                    document.getElementById('wsSendBtn').disabled = false;
+                };
+
+                wsConnection.onmessage = function(event) {
+                    addWSMessage(event.data, 'received');
+                };
+
+                wsConnection.onerror = function(error) {
+                    addWSMessage('Error: ' + error, 'error');
+                };
+
+                wsConnection.onclose = function() {
+                    updateWSStatus(false, 'Disconnected');
+                    addWSMessage('Connection closed', 'info');
+                    wsConnection = null;
+                    document.getElementById('wsSendBtn').disabled = true;
+                };
+
+            } catch (error) {
+                alert('Failed to connect: ' + error.message);
+                updateWSStatus(false, 'Connection failed');
+            }
+        }
+
+        function disconnectWebSocket() {
+            if (wsConnection) {
+                wsConnection.close();
+                wsConnection = null;
+                updateWSStatus(false, 'Disconnected');
+                document.getElementById('wsSendBtn').disabled = true;
+            }
+        }
+
+        function sendWSMessage() {
+            if (!wsConnection || wsConnection.readyState !== WebSocket.OPEN) {
+                alert('Not connected to WebSocket');
+                return;
+            }
+
+            const message = document.getElementById('wsMessage').value.trim();
+            if (!message) {
+                alert('Please enter a message');
+                return;
+            }
+
+            try {
+                wsConnection.send(message);
+                addWSMessage(message, 'sent');
+                document.getElementById('wsMessage').value = '';
+            } catch (error) {
+                alert('Failed to send message: ' + error.message);
+            }
+        }
+
+        function updateWSStatus(connected, text) {
+            const indicator = document.getElementById('wsIndicator');
+            const statusText = document.getElementById('wsStatusText');
+            
+            if (connected) {
+                indicator.classList.add('connected');
+            } else {
+                indicator.classList.remove('connected');
+            }
+            
+            statusText.textContent = text;
+        }
+
+        function addWSMessage(content, type) {
+            const container = document.getElementById('wsMessages');
+            
+            // Clear placeholder on first message
+            if (container.children.length === 1 && container.textContent.includes('Connect to start')) {
+                container.innerHTML = '';
+            }
+
+            const message = document.createElement('div');
+            message.className = `ws-message ${type}`;
+            
+            const time = new Date().toLocaleTimeString();
+            const typeLabel = type === 'sent' ? '→ SENT' : type === 'received' ? '← RECEIVED' : 'ℹ INFO';
+            
+            message.innerHTML = `
+                <div class="ws-message-time">[${time}] ${typeLabel}</div>
+                <div>${escapeHtml(content)}</div>
+            `;
+            
+            container.appendChild(message);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearWSMessages() {
+            const container = document.getElementById('wsMessages');
+            container.innerHTML = '<div style="color: var(--text-secondary);">Messages cleared...</div>';
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Enter to send REST request
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.id === 'wsMessage') {
+                    sendWSMessage();
+                } else {
+                    sendRequest();
+                }
+                e.preventDefault();
+            }
+        });
+
+        // Auto-format JSON in request body
+        document.getElementById('requestBody').addEventListener('blur', function() {
+            try {
+                const value = this.value.trim();
+                if (value && value.startsWith('{')) {
+                    const formatted = JSON.stringify(JSON.parse(value), null, 2);
+                    this.value = formatted;
+                }
+            } catch (e) {
+                // Not valid JSON, leave as is
+            }
+        });
+
+        // Auto-format JSON in WebSocket message
+        document.getElementById('wsMessage').addEventListener('blur', function() {
+            try {
+                const value = this.value.trim();
+                if (value && value.startsWith('{')) {
+                    const formatted = JSON.stringify(JSON.parse(value), null, 2);
+                    this.value = formatted;
+                }
+            } catch (e) {
+                // Not valid JSON, leave as is
+            }
+        });
+    </script>
+</body>
+</html>
